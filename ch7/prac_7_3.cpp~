@@ -1,0 +1,135 @@
+#include <iostream>
+#include <list>
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/features2d/features2d.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+
+using namespace std;
+using namespace cv;
+
+int features_num = 1000; 		// 最大特征点数量
+float scale_factor = 1.2f; 		// 金字塔之间尺度参数
+int levels_num = 8;			// 金字塔层数
+int default_fast_threshold = 20;	// fast角点检测时候的阀值
+int min_fast_threshold = 7;		// 最小fast检测阀值
+int EDGE_THRESHOLD = 19;		// 过滤边缘效应的阀值
+int PATCH_SIZE = 31;
+int HALF_PATH_SIZE = 15;
+
+// 定义一个四叉树节点类型的类，类里面定义了一些成员及函数
+class extractor_node
+{
+public:
+	extractor_node() : b_no_more(false) {}
+	// 分配节点函数
+	void divide_node(extractor_node &node1, extractor_node &node2, extractor_node &node4);
+	std::vector<cv::KeyPoint> vkeys;	// 节点keypoints容器
+	cv::Point2i UL, UR, BL, BR;		// 二维整数点类型数据u的上下左右像素
+	std::list<extractor_node>::iterator lit;// 节点类型列表迭代器
+	bool b_no_more = false;			// 确认是否含有i个特征点	
+};
+
+// 分配节点函数
+void divide_node(extractor_node &node1, extractor_node &node2, extractor_node &node4)
+{
+  /*
+   * 
+   * -----------------------------------------------------------------------
+   *	/                               /                               /
+   *	/                               /				/
+   *	/                               /				/
+   *	/                               /				/
+   *	/             n1                /		n2		/
+   *	/                               /				/
+   *	/                               /				/
+   *	/                               /				/
+   *	/                               / 				/
+   *	/-------------------------------/-------------------------------	 
+   *	/                               / 				/
+   *	/                               / 				/
+   *	/                               / 				/
+   *	/               n3              / 		n4		/
+   *	/                               / 				/
+   *	/                               / 				/
+   *	/                               / 				/
+   *	/                               / 				/
+   *	/                               /				/
+   *---------------------------------------------------------------------------
+   * 
+   */
+	const int half_x = ceil(static_cast<float>(UR.x - UL.x) / 2);
+	const int half_y = ceil(static_cast<float>(BR.y - UL.y) / 2);
+
+	// 矩阵切四块
+	node1.UL = UL;
+	node1.UR = cv::Point2i(UL.x + half_y, UL.y);
+	node1.BL = cv::Point2i(UL.x, UL.y + half_);
+	node1.BR = cv::Point2i(UL.x + half_x, UL.y + half_y);
+	node1.vkeys.reserve(vkeys.size());
+
+	node2.UL = node1.UR;
+	node2.UR = UR;
+	node2.BL = node1.BR;
+	node2.BR = cv::Point2i(UR.x, UL.y + half_y);
+	node2.vkeys.reserve(vkeys.size());
+
+	node3.UL = node1.BL;
+	node3.UR = node1.BR;
+	node3.BL = BL;
+	node3.BR = cv::Point2i(node1.BR.x, BL.y);
+	node3.vkeys.reserve(vkeys.size());
+
+	node4.UL = node3.UR;
+	node4.UR = node2.BR;
+	node4.BL = node3.BR;
+	node4.BR = BR;
+	node4.vkeys.reserve(vkeys.size());
+
+	for (size_t i = 0; i < vkeys.size(); i++)
+	{
+		const cv::KeyPoint &kp = vkeys[i];
+		if (kp.pt.x < node1.UR.x)
+		{
+			if (kp.pt.y < node1.BR.y)
+			{
+				node1.vkeys.push_back(kp);
+			}
+			else
+			{
+				node3.vkeys.push_back(kp);
+			}
+		}
+		else if (kp.pt.y < node1.BR.y)
+		{
+			node2.vkeys.push_back(kp);
+		}
+		else
+		{
+			node4.vkeys.push_back(kp);
+		}
+	}
+
+	if (node1.vkeys.size() == 1)
+	{
+		node1.b_no_more = true;
+	}
+	if (node2.vkeys.size() == 1)
+	{
+		node2.b_no_more = true;
+	}
+	if (node3.vkeys.size() == 1)
+	{
+		node3.b_no_more = true;
+	}
+	if (node4.vkeys.size() == 1)
+	{
+		node4.b_no_more = true;
+	}
+}
+
+// 计算描述子的pattern, 高斯分布，也可以使用其他定义的pattern
+static int bit_pattern_31[256 * 4] = 
+{
+
+}
