@@ -11,6 +11,7 @@ find_package(OpenCV 3.1 REQUIRED)
 find_package(G2O REQUIRED)
 find_package(CSparse REQUIRED)
 find_package(Sophus REQUIRED)
+find_package(Ceres REQUIRED)
 
 include_directories(
 	${OpenCV_INCLUDE_DIRS}
@@ -18,6 +19,7 @@ include_directories(
 	${CSPARSE_INCLUDE_DIR}
 	"/usr/include/eigen3/"
 	${Sophus_INCLUDE_DIRS}
+	${CERES_INCLUDE_DIRS}
 )
 
 add_executable(feature_extraction feature_extraction.cpp)
@@ -79,3 +81,21 @@ target_link_libraries(prac_7_7
 #	g2o_core g2o_stuff g2o_types_sba g2o_csparse_extension
 #	${Sophus_LIBRARIES}
 #)
+
+add_executable(prac_7_10_pnp prac_7_10_pnp.cpp)
+target_link_libraries(prac_7_10_pnp 
+	${OpenCV_LIBS}
+	${CSPARSE_LIBRARY}
+	g2o_core g2o_stuff g2o_types_sba g2o_csparse_extension
+	${CERES_LIBRARIES}
+)
+install(TARGETS prac_7_10_pnp RUNTIME DESTINATION bin)
+
+add_executable(prac_7_10_icp prac_7_10_icp.cpp)
+target_link_libraries(prac_7_10_icp 
+	${OpenCV_LIBS}
+	${CSPARSE_LIBRARY}
+	g2o_core g2o_stuff g2o_types_sba g2o_csparse_extension
+	${CERES_LIBRARIES}
+)
+install(TARGETS prac_7_10_icp RUNTIME DESTINATION bin)
