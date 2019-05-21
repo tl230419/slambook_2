@@ -10,12 +10,14 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 find_package(OpenCV 3.1 REQUIRED)
 find_package(G2O REQUIRED)
 find_package(CSparse REQUIRED)
+find_package(Sophus REQUIRED)
 
 include_directories(
 	${OpenCV_INCLUDE_DIRS}
 	${G2O_INCLUDE_DIRS}
 	${CSPARSE_INCLUDE_DIR}
 	"/usr/include/eigen3/"
+	${Sophus_INCLUDE_DIRS}
 )
 
 add_executable(feature_extraction feature_extraction.cpp)
@@ -44,6 +46,7 @@ target_link_libraries(pose_estimation_3d3d
 add_executable(prac_7_2 prac_7_2.cpp)
 target_link_libraries(prac_7_2 ${OpenCV_LIBS})
 
+# error, unsolved
 #add_executable(prac_7_3 prac_7_3.cpp)
 #target_link_libraries(prac_7_3 ${OpenCV_LIBS})
 
@@ -60,3 +63,19 @@ target_link_libraries(prac_7_7
 	${CSPARSE_LIBRARY}
 	g2o_core g2o_stuff g2o_types_sba g2o_csparse_extension
 )
+
+# error, unsolved
+#add_executable(prac_7_9_pnp prac_7_9_pnp.cpp)
+#target_link_libraries(prac_7_9_pnp 
+#	${OpenCV_LIBS}
+#	${CSPARSE_LIBRARY}
+#	g2o_core g2o_stuff g2o_types_sba g2o_csparse_extension
+#	${Sophus_LIBRARIES}
+#)
+#add_executable(prac_7_9_icp prac_7_9_icp.cpp)
+#target_link_libraries(prac_7_9_icp 
+#	${OpenCV_LIBS}
+#	${CSPARSE_LIBRARY}
+#	g2o_core g2o_stuff g2o_types_sba g2o_csparse_extension
+#	${Sophus_LIBRARIES}
+#)
