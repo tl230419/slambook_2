@@ -53,3 +53,10 @@ target_link_libraries(prac_7_6
 	${CSPARSE_LIBRARY}
 	g2o_core g2o_stuff g2o_types_sba g2o_csparse_extension
 )
+
+add_executable(prac_7_7 prac_7_7.cpp)
+target_link_libraries(prac_7_7 
+	${OpenCV_LIBS}
+	${CSPARSE_LIBRARY}
+	g2o_core g2o_stuff g2o_types_sba g2o_csparse_extension
+)
